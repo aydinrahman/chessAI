@@ -7,4 +7,10 @@ class Player:
         pass
 
     def move(self, board, time):
+        return self.eval(board,time)
+        return random.choice(list(board.legal_moves))
+
+
+    def eval(self, board, time):
+        print(list(board.legal_moves)[0])
         return random.choice(list(board.legal_moves))
