@@ -7,7 +7,6 @@ class Player:
     def __init__(self, board, color, time):
         self.color = color
         self.depth = 1
-        print(color)
         self.pieceValues = {'p': 100, 'n': 320, "b": 330, "r": 500, "q": 900, "k": 0}
         self.PAWN_TABLE = numpy.array([
             [0, 0, 0, 0, 0, 0, 0, 0],
@@ -23,7 +22,6 @@ class Player:
         pass
 
     def move(self, board, time):
-        print("move")
         action = self.moveHelper(board, time, True, 1, -float('inf'), float('inf'))
         return action
 
@@ -71,10 +69,8 @@ class Player:
     def eval(self, board, time):
 
         if board.is_checkmate() and board.turn == self.color:
-            print("checkmate = possible")
             return - float('inf')
         if board.is_checkmate() and board.turn != self.color:
-            print("checkmate = possible 2")
             return float('inf')
         sum = 0
         for i in board.piece_map().keys():
