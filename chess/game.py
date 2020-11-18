@@ -30,11 +30,13 @@ while p1_time > 0 and p2_time > 0 and not board.is_game_over() and legal_move:
         start = time.time()
         move = p1.move(board_copy, p1_time)
         end = time.time()
+        print("move = " + str(move))
         p1_time -= end - start
     else:
         start = time.time()
         move = p2.move(board_copy, p2_time)
         end = time.time()
+        print("move = " + str(move))
         p2_time -= end - start
 
     if move in board.legal_moves:
