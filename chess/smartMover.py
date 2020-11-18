@@ -5,7 +5,7 @@ import numpy
 
 class Player:
     def __init__(self, board, color, time):
-        random.seed(3)
+        random.seed(4)
         self.color = color
         self.depth = 1
         self.pieceValues = {'p': 100, 'n': 320, "b": 330, "r": 500, "q": 900, "k": 0}
@@ -24,11 +24,11 @@ class Player:
 
     def move(self, board, time):
         print("move g")
-        action = self.moveHelper(board, time, True, 1, -float('inf'), float('inf'))
+        action = self.moveHelper(board, time, True, 1, -float('inf'), float('inf'), self.depth)
         return action
 
-    def moveHelper(self, board, time, agentIndex, curDepth, alpha, beta):
-        if (curDepth > self.depth) or board.is_checkmate():
+    def moveHelper(self, board, time, agentIndex, curDepth, alpha, beta, maxDepth):
+        if (curDepth > maxDepth) or board.is_checkmate():
             return self.eval(board, time)
         actionList = dict()
         oldCurDepth = curDepth
@@ -39,10 +39,11 @@ class Player:
             board.push(i)
             finPieces = len(board.piece_map().keys())
             if origPieces != finPieces and board.turn == self.color:
-                curDepth -= 1
-                print("it's working?")
+                if maxDepth < 2:
+                    maxDepth += 1
+                #print("it's working?")
             actionList[i] = self.moveHelper(board, time, not agentIndex,
-                                            curDepth, alpha, beta)
+                                            curDepth, alpha, beta, maxDepth)
             board.pop()
             if agentIndex:
                 if max(actionList.values()) >= beta:
@@ -52,9 +53,9 @@ class Player:
                         for i in actionList.keys():
                             if actionList[i] == bestSum:
                                 bestActionList.append(i)
-                        if len(bestActionList) > 1:
-                            print("multiple options")
-                            print(bestActionList)
+                        # if len(bestActionList) > 1:
+                        #     print("multiple options")
+                        #     print(bestActionList)
                         return random.choice(bestActionList)
                     return max(actionList.values())
                 alpha = max(alpha, max(actionList.values()))
@@ -62,10 +63,10 @@ class Player:
             else:
                 if len(actionList.values()) == 0:
                     return float('inf')
-                print("actionList = " + str(actionList))
-                print("min of actionList = " + str(min(actionList.values())))
+                # print("actionList = " + str(actionList))
+                # print("min of actionList = " + str(min(actionList.values())))
                 if min(actionList.values()) <= alpha:
-                    print("step 2")
+                    # print("step 2")
                     return min(actionList.values())
                 beta = min(beta, max(actionList.values()))
         if agentIndex:
@@ -75,10 +76,10 @@ class Player:
                 for i in actionList.keys():
                     if actionList[i] == bestSum:
                         bestActionList.append(i)
-                if len(bestActionList) > 1:
-                    print("multiple options")
-                    print(bestActionList)
-                    print(actionList)
+                # if len(bestActionList) > 1:
+                #     print("multiple options")
+                #     # print(bestActionList)
+                #     # print(actionList)
                 return random.choice(bestActionList)
             return max(actionList.values())
         if len(actionList.values()) == 0:
@@ -86,7 +87,7 @@ class Player:
         return min(actionList.values())
 
     def eval(self, board, time):
-        print("doing an eval")
+        #print("doing an eval")
         if board.is_checkmate() and board.turn == self.color:
             return - float('inf')
         if board.is_checkmate() and board.turn != self.color:
