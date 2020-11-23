@@ -4,7 +4,7 @@ import chess
 
 class Player:
     def __init__(self, board, color, time):
-        random.seed(3)
+        random.seed(2)
         self.moveCalls = 0
         self.color = color
         self.depth = 1
@@ -32,15 +32,15 @@ class Player:
 
     def move(self, board, time):
         self.moveCalls = 0
-        action = self.moveHelper(board, time, True, 1, -float('inf'), float('inf'), self.depth)
-        print("move = " + str(action))
+        action = self.moveHelper(board, time, True, 1, -float('inf'), float('inf'))
+        # print("move = " + str(action))
         # print("num of moveCalls:")
         # print(self.moveCalls)
         return action
 
-    def moveHelper(self, board, time, agentIndex, curDepth, alpha, beta, maxDepth):
+    def moveHelper(self, board, time, agentIndex, curDepth, alpha, beta):
         self.moveCalls += 1
-        if (curDepth > maxDepth) or board.is_checkmate():
+        if (curDepth > self.depth) or board.is_checkmate():
             return self.eval(board, time)
         actionList = dict()
         oldCurDepth = curDepth
@@ -51,10 +51,10 @@ class Player:
             board.push(i)
             finPieces = len(board.piece_map().keys())
             if origPieces != finPieces and board.turn == self.color:
-                if maxDepth < 2:
-                    maxDepth += 1
-            actionList[i] = self.moveHelper(board, time, not agentIndex,
-                                            curDepth, alpha, beta, maxDepth)
+                actionList[i] = self.Quiesce(board, time, -20000, 20000)
+            else:
+                actionList[i] = self.moveHelper(board, time, not agentIndex,
+                                            curDepth, alpha, beta)
             board.pop()
             if agentIndex:
                 if max(actionList.values()) >= beta:
@@ -64,10 +64,6 @@ class Player:
                         for i in actionList.keys():
                             if actionList[i] == bestSum:
                                 bestActionList.append(i)
-                        # print(actionList)
-                        # print("bestActionList")
-                        # print(bestSum)
-                        # print(bestActionList)
                         return random.choice(bestActionList)
                     return max(actionList.values())
                 # print(actionList)
@@ -122,7 +118,65 @@ class Player:
                 else:
                     sum -= self.pieceValues[piece.piece_type - 1] + self.positionValues[p.upper()][(7 - i // 8) * 8 + i]
 
-        if board.is_check():
+        if board.is_check() and board.turn == self.color:
             sum -= 50
+        elif board.is_check() and board.turn != self.color:
+            sum += 50
 
         return sum
+
+    def Quiesce(self, board, time, alpha, beta):
+        # if alpha == -20001:
+        #     stand_pat = self.eval(board, time)
+        #     print("stand_pat = " +str(stand_pat))
+        #     if board.turn != self.color:
+        #         stand_pat *= -1
+        #     if (stand_pat >= beta):
+        #         return beta
+        #
+        #     if (alpha < stand_pat):
+        #         alpha = stand_pat
+        #
+        #     for i in board.legal_moves:
+        #         print("i = " + str(i))
+        #         origPieces = len(board.piece_map().keys())
+        #         board.push(i)
+        #         finPieces = len(board.piece_map().keys())
+        #         if origPieces != finPieces:
+        #             score = -self.Quiesce(board, time, -beta, -alpha)
+        #
+        #             if (score >= beta):
+        #                 board.pop()
+        #                 return beta
+        #             if (score > alpha):
+        #                 alpha = score
+        #         board.pop()
+        #
+        #     return alpha
+        # else:
+        stand_pat = self.eval(board, time)
+        if board.turn != self.color:
+            stand_pat*=-1
+        if (stand_pat >= beta):
+            return beta
+
+        if (alpha < stand_pat):
+            alpha = stand_pat
+
+
+        for i in board.legal_moves:
+            origPieces = len(board.piece_map().keys())
+            board.push(i)
+            finPieces = len(board.piece_map().keys())
+            if origPieces != finPieces:
+                score = -self.Quiesce(board, time, -beta, -alpha)
+
+                if (score >= beta):
+                    board.pop()
+                    return beta
+                if (score > alpha):
+                    alpha = score
+            board.pop()
+
+
+        return alpha

@@ -1,8 +1,8 @@
 import chess
 import chess.pgn
 import time
-import smartMover as player1
-import smartMover as player2
+import quiescent as player1
+import miniMaxMover as player2
 
 game = chess.pgn.Game()
 node = game
