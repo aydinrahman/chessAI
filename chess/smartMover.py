@@ -4,7 +4,6 @@ import chess
 
 class Player:
     def __init__(self, board, color, time):
-        random.seed(3)
         self.moveCalls = 0
         self.color = color
         self.depth = 1
