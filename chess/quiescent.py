@@ -1,5 +1,6 @@
 import random
 import chess
+import numpy as np
 
 
 class Player:
@@ -10,27 +11,63 @@ class Player:
         self.depth = 1
         self.bool = False
         # pawn = 0; knight = 1; bishop = 2; rook = 3; queen = 4; king = 5
-        self.pieceValues = [100, 320, 330, 500, 900, 0]
+        self.piece_values = {'P': 10, 'N': 30, 'B': 30, 'R': 50, 'Q': 90, 'K': 900,
+                        'p': -10, 'n': -30, 'b': -30, 'r': -50, 'q': -90, 'k': -900}
         # values gotten from https://www.chessprogramming.org/Simplified_Evaluation_Function
         self.positionValues = {
-            "P": [0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 10, -20, -20, 10, 10, 5, 5, -5, 10, 0, 0, -10, -5, 5, 0, 0, 0, 20, 20,
-                  0, 0, 0, 5, 5, 10, 25, 25, 10, 5, 5, 10, 10, 20, 30, 30, 20, 10, 10, 50, 50, 50, 50, 50, 50, 50, 50,
-                  0, 0, 0, 0, 0, 0, 0, 0],
-            "N": [-50, -40, -30, -30, -30, -30, -40, -50, -40, -20, 0, 5, 5, 0, -20, -40, -30, 5, 10, 15, 15, 10, 5,
-                  -30, -30, 0, 15, 20, 20, 15, 0, -30, -30, 5, 15, 20, 20, 15, 5, -30, -30, 0, 10, 15, 15, 10, 0, -30,
-                  -40, -20, 0, 0, 0, 0, -20, -40, -50, -40, -30, -30, -30, -30, -40, -50],
-            "B": [-20, -10, -10, -10, -10, -10, -10, -20, -10, 5, 0, 0, 0, 0, 5, -10, -10, 10, 10, 10, 10, 10, 10, -10,
-                  -10, 0, 10, 10, 10, 10, 0, -10, -10, 5, 5, 10, 10, 5, 5, -10, -10, 0, 5, 10, 10, 5, 0, -10, -10, 0, 0,
-                  0, 0, 0, 0, -10, -20, -10, -10, -10, -10, -10, -10, -20],
-            "R": [0, 0, 0, 5, 5, 0, 0, 0, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5,
-                  -5, 0, 0, 0, 0, 0, 0, -5, -5, 0, 0, 0, 0, 0, 0, -5, 5, 10, 10, 10, 10, 10, 10, 5, 0, 0, 0, 0, 0, 0, 0,
-                  0],
-            "Q": [-20, -10, -10, -5, -5, -10, -10, -20, -10, 0, 5, 0, 0, 0, 0, -10, -10, 5, 5, 5, 5, 5, 0, -10, 0, 0, 5,
-                  5, 5, 5, 0, -5, -5, 0, 5, 5, 5, 5, 0, -5, -10, 0, 5, 5, 5, 5, 0, -10, -10, 0, 0, 0, 0, 0, 0, -10, -20,
-                  -10, -10, -5, -5, -10, -10, -20],
-            "K": [20, 30, 10, 0, 0, 10, 30, 20, 20, 20, 0, 0, 0, 0, 20, 20, -10, -20, -20, -20, -20, -20, -20, -10, -20,
-                  -30, -30, -40, -40, -30, -30, -20, -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50,
-                  -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30, -30, -40, -40, -50, -50, -40, -40, -30]}
+            'P': np.array([[0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
+                           [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
+                           [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
+                           [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
+                           [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
+                           [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
+                           [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
+                           [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]]),
+
+            'N': np.array([[-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
+                           [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
+                           [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
+                           [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
+                           [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
+                           [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
+                           [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
+                           [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]]),
+
+            'B': np.array([[-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
+                           [-1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
+                           [-1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
+                           [-1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0],
+                           [-1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0],
+                           [-1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0],
+                           [-1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
+                           [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]]),
+
+            'R': np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  0.0],
+                           [0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  0.5],
+                           [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+                           [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+                           [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+                           [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+                           [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+                           [0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0,  0.0]]),
+
+            'Q': np.array([[-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
+                           [-1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
+                           [-1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
+                           [-0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
+                           [-0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
+                           [-1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
+                           [-1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
+                           [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]]),
+
+            'K': np.array([[-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+                           [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+                           [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+                           [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+                           [-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
+                           [-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
+                           [2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0],
+                           [2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0]])}
 
     def move(self, board, time):
         self.moveCalls = 0
@@ -40,7 +77,7 @@ class Player:
     def moveHelper(self, board, time, agentIndex, curDepth, alpha, beta):
         self.moveCalls += 1
         if (curDepth > self.depth) or board.is_checkmate():
-            return self.eval(board, time)
+            return self.positionEvaluation(board)
         actionList = dict()
         oldCurDepth = curDepth
         if not agentIndex:
@@ -52,7 +89,7 @@ class Player:
             board.push(i)
             finPieces = len(board.piece_map().keys())
             if origPieces != finPieces and board.turn == self.color:
-                eval = self.eval(board, time)
+                eval = self.positionEvaluation(board)
                 actionList[i] = self.Quiesce(board, time, eval, eval+900)
             else:
                 actionList[i] = self.moveHelper(board, time, not agentIndex,
@@ -109,9 +146,45 @@ class Player:
 
         return sum
 
+    def positionEvaluation(self, position):
+        # Position of pieces is not taken into account for their strength
+        position_values = self.positionValues
+        piece_values = self.piece_values
+        if position_values == 'None':
+            total_eval = 0
+            pieces = list(position.piece_map().values())
+
+            for piece in pieces:
+                total_eval += piece_values[str(piece)]
+
+            return total_eval
+
+        else:
+            positionTotalEval = 0
+            pieces = position.piece_map()
+
+            for j in pieces:
+                file = chess.square_file(j)
+                rank = chess.square_rank(j)
+
+                piece_type = str(pieces[j])
+                positionArray = position_values[piece_type.upper()]
+
+                if piece_type.isupper():
+                    flippedPositionArray = np.flip(positionArray, axis=0)
+                    positionTotalEval += piece_values[piece_type] + \
+                                         flippedPositionArray[rank, file]
+
+                else:
+                    positionTotalEval += piece_values[piece_type] - \
+                                         positionArray[rank, file]
+
+            if self.color == False:
+                positionTotalEval *=-1
+            return positionTotalEval
 
     def Quiesce(self, board, time, alpha, beta):
-        stand_pat = self.eval(board, time)
+        stand_pat = self.positionEvaluation(board)
         if board.turn != self.color:
             stand_pat*=-1
         if (stand_pat >= beta):

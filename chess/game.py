@@ -1,16 +1,16 @@
 import chess
 import chess.pgn
 import time
-import quiescent as player1
-import miniMaxMover as player2
+import miniMaxMover as player1
+import quiescent as player2
 
 game = chess.pgn.Game()
 node = game
 board = chess.Board()
 board1 = board.copy()
 board2 = board.copy()
-p1_time = 60
-p2_time = 60
+p1_time = 120
+p2_time = 120
 
 start = time.time()
 p1 = player1.Player(board1, chess.WHITE, p1_time)
@@ -76,3 +76,5 @@ elif board.is_seventyfive_moves():
 elif board.is_fivefold_repetition():
     print("Draw - position repeated 5 times")
 print(game)
+print(p1_time)
+print(p2_time)
